@@ -1,10 +1,20 @@
+from os.path import isfile
+
+from pip_r.exceptions import FileException
+
+__all__ = ["File"]
+
+
 class File:
-    def __init__(self, filename):
-        self.file = filename
+    def __init__(self, filepath):
+        if not isfile(filepath):
+            raise FileException("No such file: " + filepath)
+
+        self.path = filepath
 
     @property
     def content(self):
-        with open(self.file) as fp:
+        with open(self.path) as fp:
             content = fp.read()
         return content
 
