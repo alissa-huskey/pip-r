@@ -1,0 +1,5 @@
+# comment
+pipx >= 2.0
+pytest
+ipython # comment
+

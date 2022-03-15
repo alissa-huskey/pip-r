@@ -1,0 +1,9 @@
+green                                # valid
+lkjsdflksjdf                         # missing package
+pip == 0.1.1                         # invalid version
+pytz => 5                            # invalid syntax
+attrs;python_version ~= "surprise"   # invalid marker
+six;python_version<"0.0"             # invalid marker
+more-itertools                       #  valid
+
+# vim:ft=requirements

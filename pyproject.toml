@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "pip-r"
+version = "1.0.0"
+description = "a requirements.txt installer; like pip -r, but prettier"
+authors = ["Alissa Huskey <alissa.huskey@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.0.1"
+pdbpp = "^0.10.3"
+pynvim = "^0.4.3"
+pytest-mock = "^3.7.0"
+ipython = "^8.1.1"
+
+[tool.pytest.ini_options]
+addopts = "-vx"
+testpaths = "tests"
+filterwarnings = [
+    "ignore",                 # ignore warnings
+    "default:::pip_r"         # except triggered by this package
+]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

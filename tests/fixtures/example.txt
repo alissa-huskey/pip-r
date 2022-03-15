@@ -1,0 +1,123 @@
+# -*- coding: utf8 -*-
+#
+# https://setuptools.pypa.io/en/latest/pkg_resources.html#requirements-parsing
+# https://peps.python.org/pep-0508/#environment-markers
+# https://peps.python.org/pep-0440/#version-specifiers
+
+# include external files
+
+# -c, --constraint
+# -r, --requirement
+
+-r other.txt
+-c constraints.txt
+
+# global options
+
+# -i, --index-url
+# --extra-index-url
+# --no-index
+# -e, --editable
+# -f, --find-links
+# --no-binary
+# --only-binary
+--prefer-binary
+--require-hashes
+# --pre
+# --trusted-host
+# --use-feature
+
+# --force-reinstall
+# --upgrade-strategy only-if-needed
+
+# requirements with various version specifiers
+
+green
+xdoctest
+pytest
+pytz
+console
+attrs
+pdbpp
+more-itertools
+pretty-errors
+
+pyflakes
+six
+tabulate
+tqdm
+wcwidth
+pytest-mock
+setuptools
+appdirs
+asciinema
+blessed
+decorator
+jsonschema
+python-dateutil
+pyyaml
+regex
+rich
+send2trash
+sqlalchemy
+testpath
+typing-extensions
+
+pynvim
+toml == 0.10.2
+xdoctest >= 0.10.0, <0.15.0
+requests[security]
+green ~= 3.4.0
+
+
+FooProject >= 1.2
+Fizzy [foo, bar]
+PickyThing>1.6,<=1.9,!=1.8.6
+SomethingWithMarker[foo]>1.0;python_version<"2.7"
+
+# examples
+
+botocore>=1.15.0,<1.25.0
+absl-py @ file:///tmp/build/80754af9/absl-py_1607439979954/work
+# -e git+https://github.com/maximecb/gym-minigrid.git@62c14b4b2e6b6f5f700126355e6e9b7aa9984327#egg=gym_minigrid
+# -e git+https://github.com/zuoxingdong/mazelab.git@236eef5f7c41b86bb784f506fe1a2e0700a2e48f#egg=mazelab
+
+
+requests [security,tests] >= 2.8.1, == 2.8.* ; python_version < "2.7"
+transformers @ git+https://github.com/huggingface/transformers@5d2fed2e8c6fc904d5bc12147a64e2395a0a573e
+# git+https://github.com/HexDecimal/wfc_2019f.git@frontend
+
+# line continuation
+
+some-project \
+  == 0.9
+
+# environment variables
+
+iniconfig==${X_VERSION}
+
+#  environment markers 
+
+SomeProject ==5.4 ; python_version < '3.8'
+appnope; sys_platform == 'darwin' # win32
+
+requests [security,tests] >= 2.8.1, == 2.8.* ; python_version < "2.7"
+pip @ https://github.com/pypa/pip/archive/1.3.1.zip#sha1=da9234ee9982d4bbb3c72346a6de940a148ea686
+argparse;python_version<"2.7"
+
+# direct references
+
+pip @ file:///localbuilds/pip-1.3.1.zip
+pip @ file:///localbuilds/pip-1.3.1-py33-none-any.whl
+pip @ https://github.com/pypa/pip/archive/1.3.1.zip#sha1=da9234ee9982d4bbb3c72346a6de940a148ea686
+pip @ git+https://github.com/pypa/pip.git@7921be1537eac1e97bc40179a57f0349c2aee67d
+pip @ git+https://github.com/pypa/pip.git@1.3.1#7921be1537eac1e97bc40179a57f0349c2aee67d
+
+
+# a particular file
+
+# ./downloads/numpy-1.9.2-cp34-none-win32.whl
+# http://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev1820+49a8884-cp34-none-win_amd64.whl
+
+
+# vim:ft=requirements

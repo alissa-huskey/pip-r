@@ -1,0 +1,25 @@
+appnope; sys_platform == 'darwin' # win32
+SomethingWithMarker[foo]>1.0; sys_platform == 'win32'
+
+lsdjfs+= 82.3.3
+
+pipx >= 9.2.9
+blessed
+
+pretty_errors
+ipython
+pyperclip
+pylint
+pylama
+green
+pdbpp
+
+
+# vim
+#--------------------------------------------------
+
+# neovim             # deprecated
+pynvim               # 
+msgpack
+pygments
+# vim:ft=requirements
