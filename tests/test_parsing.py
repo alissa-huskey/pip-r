@@ -273,19 +273,15 @@ def test_parse_valid(params):
     assert not line.is_empty
     assert isinstance(req, Requirement)
     assert line.req == req
-    assert req.name == params.name
-    assert req.key == params.name
-    assert req.project_name == params.name
-    assert req.unsafe_name == params.name
-    assert req.extras == params.extras
-    assert req.url == params.url
-    assert str(req.specifier) == params.specifier
-    assert sorted(req.specs) == sorted(params.specs)
+    assert line.name == params.name
+    assert line.extras == params.extras
+    assert line.url == params.url
+    assert str(line.specifier) == params.specifier
 
     if params.marker:
-        assert str(req.marker) == params.marker
+        assert str(line.marker) == params.marker
     else:
-        assert not req.marker
+        assert not line.marker
 
 @pytest.mark.parametrize("params", [
     Data(text="# a comment"),
