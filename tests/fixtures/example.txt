@@ -73,7 +73,7 @@ green ~= 3.4.0
 FooProject >= 1.2
 Fizzy [foo, bar]
 PickyThing>1.6,<=1.9,!=1.8.6
-SomethingWithMarker[foo]>1.0;python_version<"2.7"
+asciinema[foo]>1.0;python_version<"2.7"
 
 # examples
 
