@@ -3,7 +3,8 @@ from pkg_resources.extern.packaging.requirements import InvalidRequirement
 from pip_r.line import Line
 from pip_r.status import Status
 
-class Requirement: pass
+from tests.stubs import Requirement
+
 
 def test_constructor():
     line = Line("requirements.txt", 1, "green")

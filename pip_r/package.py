@@ -43,6 +43,7 @@ class Package():
             text=True,
         )
         proc.wait()
+
         self.code = proc.returncode
         self.stderr = proc.stderr.read()
         self.stdout = proc.stdout.read()
