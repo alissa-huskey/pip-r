@@ -87,8 +87,6 @@ def test_markers(line, name, marker):
     assert doc["identifier"] == [name]
     assert doc["marker"] == [marker]
 
-
-
 @pytest.mark.parametrize("line, comment", [
     ("# a comment line", "# a comment line"),
     ("  # a comment line", "# a comment line"),

@@ -6,6 +6,8 @@ from pip_r.parser import Parser
 
 from pip_r.grammar import spec
 
+bp = breakpoint
+
 grammar = Grammar(spec)
 
 def test_name():
@@ -15,6 +17,8 @@ pytest
     """)
     parser = Parser()
     doc = parser.visit(tree)
+    results = groups(tree)
+
 
     assert len(doc) == 2
 
@@ -35,4 +39,20 @@ def test_versionspec(line, versionspec):
     doc = parser.visit(tree)
 
     assert doc[0].versionspec == versionspec
+
+@pytest.mark.parametrize("line, name, marker", [
+    ('argparse;python_version<"2.7"', 'argparse', ';python_version<"2.7"'),
+    ("name; os_name=='a' and os_name=='b'", 'name', "; os_name=='a' and os_name=='b'"),
+    ("name; os_name=='a' or os_name=='b'", 'name', "; os_name=='a' or os_name=='b'"),
+    ("name; os_name=='a' and os_name=='b' or os_name=='c'", 'name', "; os_name=='a' and os_name=='b' or os_name=='c'"),
+    ("name; os_name=='a' or os_name=='b' and os_name=='c'", 'name', "; os_name=='a' or os_name=='b' and os_name=='c'"),
+    ("name; os_name=='a' and (os_name=='b' or os_name=='c')", "name", "; os_name=='a' and (os_name=='b' or os_name=='c')"),
+    ("name; (os_name=='a' or os_name=='b') and os_name=='c'", "name", "; (os_name=='a' or os_name=='b') and os_name=='c'"),
+])
+def test_markers(line, name, marker):
+    tree = grammar.parse(line)
+    parser = Parser()
+    doc = parser.visit(tree)
+
+    assert doc[0].marker == marker
 

@@ -38,6 +38,9 @@ class Parser(NodeVisitor):
         list-of-version-constraints-or-a-url, marker-ast or None
         """
 
+        if not node.text:
+            return
+
         requirement = Requirement()
 
         for attr in self.attrs:
@@ -55,6 +58,11 @@ class Parser(NodeVisitor):
 
     def visit_identifier(self, node, visited_children):
         attr = Attr("name", node.text)
+        self.attrs.append(attr)
+        return attr
+
+    def visit_marker(self, node, visited_children):
+        attr = Attr("marker", node.text)
         self.attrs.append(attr)
         return attr
 

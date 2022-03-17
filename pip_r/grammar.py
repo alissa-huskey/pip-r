@@ -166,54 +166,54 @@ letterOrDigit = ~"[a-zA-Z0-9]"
 
 
 spec = r"""
-root                      = white* line*
-line                      = wsp* ( specification / emptyline ) wsp* newline*
-specification             = name *wsp versionspec? wsp* marker? comment?
-name                      = identifier
-identifier                = letterOrDigit identifier_end*
-identifier_end            = letterOrDigit / (("-" / "_" / "." )* letterOrDigit)
+root                                = white* line*
+line                                = wsp* ( specification / emptyline ) wsp* newline*
+specification                       = name *wsp versionspec? wsp* marker? comment?
+name                                = identifier
+identifier                          = letterOrDigit identifier_end*
+identifier_end                      = letterOrDigit / (("-" / "_" / "." )* letterOrDigit)
 
-versionspec               = version_expr (wsp* "," version_expr)*
-version_expr              = version_operator wsp* version wsp*
-version                   = wsp* ( letterOrDigit / "-" / "_" / "." / "*" / "+" / "!" )+
+versionspec                         = version_expr (wsp* "," version_expr)*
+version_expr                        = version_operator wsp* version wsp*
+version                             = wsp* ( letterOrDigit / "-" / "_" / "." / "*" / "+" / "!" )+
 
-marker                    = semicolon wsp* marker_expr marker_multi*
-marker_multi              = wsp+ ("and" / "or") wsp+ marker_expr
-marker_expr               = "("* wsp* env_var wsp* marker_operator wsp* python_string wsp* ")"*
+marker                              = semicolon wsp* marker_expr marker_multi*
+marker_multi                        = wsp+ ("and" / "or") wsp+ marker_expr
+marker_expr                         = "("* wsp* env_var wsp* marker_operator wsp* python_string wsp* ")"*
 
-env_var                   = ("python_version" / "python_full_version" /
-                             "os_name" / "sys_platform" / "platform_release" /
-                             "platform_system" / "platform_version" /
-                             "platform_machine" / "platform_python_implementation" /
-                             "implementation_name" / "implementation_version" /
-                             "extra")
+env_var                             = ("python_version" / "python_full_version" /
+                                       "os_name" / "sys_platform" / "platform_release" /
+                                       "platform_system" / "platform_version" /
+                                       "platform_machine" / "platform_python_implementation" /
+                                       "implementation_name" / "implementation_version" /
+                                       "extra")
 
-marker_operator           = version_operator / (wsp* "in") / (wsp* "not" wsp+ "in")
-version_operator          = wsp* ( "<=" / "<" / "!=" / "==" / ">=" / ">" / "~=" / "===" )
+marker_operator                     = version_operator / (wsp* "in") / (wsp* "not" wsp+ "in")
+version_operator                    = wsp* ( "<=" / "<" / "!=" / "==" / ">=" / ">" / "~=" / "===" )
 
-python_string             = (quote_double quotable_double+ quote_double)
-                          / (quote_single quotable_single+ quote_single)
+python_string                       = (quote_double quotable_double+ quote_double)
+                                    / (quote_single quotable_single+ quote_single)
 
-emptyline                 = wsp* comment? white+
-comment                  = "# " not_newline
-quotable_single           = ( (backslash quote_single) / not_quote_single )
-quotable_double           = ( (backslash quote_double) / not_quote_double )
+emptyline                           = wsp* comment? white*
+comment                             = "# " not_newline
+quotable_single                     = ( (backslash quote_single) / not_quote_single )
+quotable_double                     = ( (backslash quote_double) / not_quote_double )
 
-newline                   = ~"[\n\r]*"
-not_newline               = ~"[^\n\r]*"
-white                     = ~"[ \t\n\r]*"
-wsp                       = ~"[ \t]*"
-letterOrDigit             = ~"[a-zA-Z0-9]"
+newline                             = ~"[\n\r]*"
+not_newline                         = ~"[^\n\r]*"
+white                               = ~"[ \t\n\r]*"
+wsp                                 = ~"[ \t]*"
+letterOrDigit                       = ~"[a-zA-Z0-9]"
 
-not_quote                 = ~'[^\x27\x22]'
-not_quote_double          = ~'[^\x22]'
-not_quote_single          = ~'[^\x27]'
+not_quote                           = ~'[^\x27\x22]'
+not_quote_double                    = ~'[^\x22]'
+not_quote_single                    = ~'[^\x27]'
 
-quote                     = (quote_double / quote_single)
-backslash                 = "\x5c"
-quote_double              = "\x22"
-quote_single              = "\x27"
-semicolon                 = "\x3b"
+quote                               = (quote_double / quote_single)
+backslash                           = "\x5c"
+quote_double                        = "\x22"
+quote_single                        = "\x27"
+semicolon                           = "\x3b"
 """
 
 if __name__ == "__main__":
