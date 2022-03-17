@@ -88,6 +88,19 @@ def test_markers(line, name, marker):
     assert doc["marker"] == [marker]
 
 
+
+@pytest.mark.parametrize("line, comment", [
+    ("# a comment line", "# a comment line"),
+    ("  # a comment line", "# a comment line"),
+    ("pytest # that's all folks!", "# that's all folks!")
+])
+def test_comments(line, comment):
+    tree = grammar.parse(line)
+    doc = groups(tree)
+
+    assert doc["comment"] == [comment]
+
+
 """
 "name@http://foo.com",
 "name [fred,bar] @ http://foo.com ; python_version=='2.7'",

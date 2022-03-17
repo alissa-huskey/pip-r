@@ -166,9 +166,9 @@ letterOrDigit = ~"[a-zA-Z0-9]"
 
 
 spec = r"""
-root                      = line*
-line                      = ( specification / emptyline )
-specification             = wsp* name *wsp versionspec? wsp* marker * wsp
+root                      = white* line*
+line                      = wsp* ( specification / emptyline ) wsp* newline*
+specification             = name *wsp versionspec? wsp* marker? comment?
 name                      = identifier
 identifier                = letterOrDigit identifier_end*
 identifier_end            = letterOrDigit / (("-" / "_" / "." )* letterOrDigit)
@@ -194,11 +194,15 @@ version_operator          = wsp* ( "<=" / "<" / "!=" / "==" / ">=" / ">" / "~=" 
 python_string             = (quote_double quotable_double+ quote_double)
                           / (quote_single quotable_single+ quote_single)
 
+emptyline                 = wsp* comment? white+
+comment                  = "# " not_newline
 quotable_single           = ( (backslash quote_single) / not_quote_single )
 quotable_double           = ( (backslash quote_double) / not_quote_double )
 
-wsp                       = ~"[ \t\n\r]*"
-emptyline                 = wsp+
+newline                   = ~"[\n\r]*"
+not_newline               = ~"[^\n\r]*"
+white                     = ~"[ \t\n\r]*"
+wsp                       = ~"[ \t]*"
 letterOrDigit             = ~"[a-zA-Z0-9]"
 
 not_quote                 = ~'[^\x27\x22]'
