@@ -5,7 +5,6 @@ from parsimonious.nodes import NodeVisitor, Node
 
 from pip_r.grammar import spec, walk, groups
 
-
 grammar = Grammar(spec)
 
 @pytest.mark.parametrize("package", [
@@ -70,6 +69,20 @@ def test_versionspec(line, name, operator, version):
     assert results["identifier"] == [name]
     assert results["version_operator"] == [operator]
     assert results["version"] == [version]
+
+
+#  @pytest.mark.parametrize("line, name, operator, version", [
+#      ("docopt == 0.6.1", "docopt", "==", "0.6.1"),
+#      ("keyring >= 4.1.1", "keyring", ">=", "4.1.1"),
+#      ("coverage != 3.5", "coverage", "!=", "3.5"),
+#      ("Mopidy-Dirble \t ~=  1.1", "Mopidy-Dirble", "~=", "1.1"),
+#  ])
+def test_markers():
+    tree = grammar.parse('argparse;python_version<"2.7"')
+    doc = groups(tree)
+
+    assert doc["identifier"] == ["argparse"]
+    assert doc["marker"] == [';python_version<"2.7"']
 
 
 """
