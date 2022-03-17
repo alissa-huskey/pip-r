@@ -32,6 +32,20 @@ def test_extras():
 
     assert doc[0].extras == "[foo, bar]"
 
+def test_url():
+    tree = grammar.parse("pip @ file:///localbuilds/pip-1.3.1.zip")
+    parser = Parser()
+    doc = parser.visit(tree)
+
+    assert doc[0].URI == "file:///localbuilds/pip-1.3.1.zip"
+
+def test_comment():
+    tree = grammar.parse("pip # trailing comment")
+    parser = Parser()
+    doc = parser.visit(tree)
+
+    assert doc[0].comment == "# trailing comment"
+
 @pytest.mark.parametrize("line, versionspec", [
     ("docopt == 0.6.1", "== 0.6.1"),
     ("keyring >= 4.1.1", ">= 4.1.1"),

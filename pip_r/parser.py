@@ -8,9 +8,7 @@ from pip_r.grammar import spec, walk
 
 
 class Requirement:
-    name = ""
-    version = ""
-    versionspec = ""
+    name, extras, versionspec, URI, markers, comment = [""] * 6
 
     def __repr__(self):
         attrs = ", ".join([f"{k}={v!r}" for k, v in self.__dict__.items()])
@@ -56,10 +54,12 @@ class Parser(NodeVisitor):
         self.attrs.append(attr)
         return attr
 
-    visit_versionspec = partialmethod(attr_visitor, "versionspec")
     visit_name = partialmethod(attr_visitor, "name")
-    visit_marker = partialmethod(attr_visitor, "marker")
     visit_extras = partialmethod(attr_visitor, "extras")
+    visit_versionspec = partialmethod(attr_visitor, "versionspec")
+    visit_URI = partialmethod(attr_visitor, "URI")
+    visit_marker = partialmethod(attr_visitor, "marker")
+    visit_comment = partialmethod(attr_visitor, "comment")
 
     def generic_visit(self, node, visited_children):
         """ The generic visit method. """
