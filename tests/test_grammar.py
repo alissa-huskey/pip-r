@@ -91,13 +91,76 @@ def test_markers(line, name, marker):
     assert doc["name"] == [name]
     assert doc["marker"] == [marker]
 
-@pytest.mark.skip(reason="not yet implemented")
-def test_url():
-    tree = grammar.parse("name@http://foo.com")
+@pytest.mark.parametrize("line, name, uri", [
+    ("name@http://foo.com", "name", "http://foo.com"),
+    ("name [fred,bar] @ http://foo.com ; python_version=='2.7'", "name", "http://foo.com"),
+    (
+        "SomePackage[PDF] @ git+https://git.repo/SomePackage@main#subdirectory=subdir_path",
+        "SomePackage",
+        "git+https://git.repo/SomePackage@main#subdirectory=subdir_path",
+    ),
+    (
+        "SomeProject@git+https://git.repo/some_pkg.git@1.3.1",
+        "SomeProject",
+        "git+https://git.repo/some_pkg.git@1.3.1",
+    ),
+    (
+        "SomeProject @ http://my.package.repo/SomeProject-1.2.3-py33-none-any.whl",
+        "SomeProject",
+        "http://my.package.repo/SomeProject-1.2.3-py33-none-any.whl",
+    ),
+    (
+        "SomeProject@http://my.package.repo/1.2.3.tar.gz",
+        "SomeProject",
+        "http://my.package.repo/1.2.3.tar.gz",
+    ),
+    (
+        "SomeProject@http://192.168.2.2/1.2.3.tar.gz",
+        "SomeProject",
+        "http://192.168.2.2/1.2.3.tar.gz",
+    ),
+    (
+        "pip @ file:///localbuilds/pip-1.3.1.zip",
+        "pip",
+        "file:///localbuilds/pip-1.3.1.zip",
+    ),
+    (
+        "pip @ ./downloads/numpy-1.9.2-cp34-none-win32.whl",
+        "pip",
+        "./downloads/numpy-1.9.2-cp34-none-win32.whl",
+    ),
+    (
+        "pipx @ fe80::1ff:fe23:4567:890a",
+        "pipx",
+        "fe80::1ff:fe23:4567:890a",
+    ),
+    (
+        "pipx @ http://foo.com/?p=bar.git;a=snapshot;h=v0.1;sf=tgz",
+        "pipx",
+        "http://foo.com/?p=bar.git;a=snapshot;h=v0.1;sf=tgz",
+    ),
+    (
+        "pipx @ /path/to/foo.egg-info",
+        "pipx",
+        "/path/to/foo.egg-info",
+    ),
+    (
+        "pipx @ simple-0.1-py2.py3-none-any.whl",
+        "pipx",
+        "simple-0.1-py2.py3-none-any.whl",
+    ),
+    (
+        "pipx @ .",
+        "pipx",
+        ".",
+    ),
+])
+def test_uri(line, name, uri):
+    tree = grammar.parse(line)
     doc = groups(tree)
 
-    assert doc["name"] == ["name"]
-    assert doc["url"] == ["http://foo.com"]
+    assert doc["name"] == [name]
+    assert doc["URI"] == [uri]
 
 def test_comments():
     tree = grammar.parse(line)
@@ -133,11 +196,8 @@ requests [security,tests]     \
     assert results["marker"] == ['; python_version < "2.7"']
 
 """
-"name@http://foo.com",
-"name [fred,bar] @ http://foo.com ; python_version=='2.7'",
 "name[quux, strange];python_version<'2.7' and platform_version=='2'",
 "SomePackage[PDF] @ git+https://git.repo/SomePackage@main#subdirectory=subdir_path"
- -e "git+https://git.repo/some_repo.git#egg=subdir&subdirectory=subdir_path" # install a python package from a repo subdirectory
 
  # same as:
  # python setup.py --no-user-cfg install --prefix='/usr/local' --no-compile
@@ -145,11 +205,6 @@ requests [security,tests]     \
                   --install-option="--prefix='/usr/local'" \
                   --install-option="--no-compile"
 
- SomeProject@git+https://git.repo/some_pkg.git@1.3.1
-
-SomeProject@http://my.package.repo/SomeProject-1.2.3-py33-none-any.whl
-SomeProject @ http://my.package.repo/SomeProject-1.2.3-py33-none-any.whl
-SomeProject@http://my.package.repo/1.2.3.tar.gz
 
 ./downloads/numpy-1.9.2-cp34-none-win32.whl
 http://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev1820+49a8884-cp34-none-win_amd64.whl

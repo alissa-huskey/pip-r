@@ -42,6 +42,7 @@ def groups(tree, show_all=False):
 # [x] line continuation
 # [ ] per-requirement options
 # [ ] -f git+git://github.com/mozilla/elasticutils.git
+# [ ] environment variables
 
 spec = r"""
 # ===================================================================================
@@ -51,7 +52,9 @@ root                = white* line*
 
 line                = wsp* ( specification / emptyline ) wsp* newline*
 
-specification       = name wsp* extras? wsp* versionspec? wsp* marker? wsp* comment?
+# name_req      = (name wsp* extras? wsp* versionspec? wsp* quoted_marker?
+# url_req       = (name wsp* extras? wsp* urlspec (wsp+ | end) quoted_marker?
+specification       = name wsp* extras? wsp* ((versionspec wsp*) / (urlspec (wsp+ / newline)))? marker? wsp* comment?
 
 versionspec         = version_expr (wsp* "," version_expr)*
 version_expr        = version_operator wsp* version
@@ -63,6 +66,8 @@ marker_expr         = "("* wsp* env_var wsp* marker_operator wsp* python_string 
 
 extras              = "[" wsp* identifier (wsp* "," wsp* identifier)* wsp* "]"
 
+urlspec             = "@" wsp* URI
+
 # ===================================================================================
 # Tokens
 # -----------------------------------------------------------------------------------
@@ -73,6 +78,43 @@ emptyline           = wsp* comment? white*
 comment             = "# " not_newline
 python_string       = (quote_double quotable_double+ quote_double)
                     / (quote_single quotable_single+ quote_single)
+
+URI                 = (scheme ":")? hier_part ("?" fragment )? ( "#" fragment)?
+scheme              = letter ( letter / digit / "+" / "-" / ".")*
+hier_part           = ('//' authority path_abempty) / path_absolute / path_rootless # / path_empty
+
+path_abempty        =  ( '/' segment)*                         # begins with '/' or is empty
+path_absolute       =  '/' ( segment_nz ( '/' segment)* )?     # begins with '/' but not '//'
+path_noscheme       =  segment_nz_nc ( '/' segment)*           # begins with a non-colon segment
+path_rootless       = segment_nz ( '/' segment)*               # begins with a segment
+path_empty          = ""                                       # zero characters
+
+authority           = ( userinfo "@" )? host ( ":" port )?
+userinfo            = ( unreserved / pct_encoded / sub_delims / ":")*
+host                = IP_literal / IPv4address / reg_name
+port                = digit*
+reg_name            = ( unreserved / pct_encoded / sub_delims)*
+pct_encoded         = "%" hexdig
+
+IP_literal          = "[" ( IPv6address / IPvFuture) "]"
+IPvFuture           = "v" hexdig+ "." ( unreserved / sub_delims / ":")+
+IPv4address         = dec_octet "." dec_octet "." dec_octet "." dec_octet
+IPv6address         = ((                                                                    h16c h16c h16c h16c h16c h16c ls32 ) /
+                       (                                                               "::" h16c h16c h16c h16c h16c h16c ls32 ) /
+                       (                                                  h16        ? "::" h16c h16c h16c h16c           ls32 ) /
+                       (                                    (h16c? (h16c? h16      ))? "::" h16c h16c h16c                ls32 ) /
+                       (                             (h16c? (h16c? (h16c? h16     )))? "::" h16c h16c                     ls32 ) /
+                       (                      (h16c? (h16c? (h16c? (h16c? h16    ))))? "::" h16 ":"                       ls32 ) /
+                       (               (h16c? (h16c? (h16c? (h16c? (h16c? h16   )))))? "::" ls32                               ) /
+                       (        (h16c? (h16c? (h16c? (h16c? (h16c? (h16c? h16  ))))))? "::" h16                                ) /
+                       ( (h16c? (h16c? (h16c? (h16c? (h16c? (h16c? (h16c? h16 )))))))? "::" )                                    )
+
+h16c          = ( h16 ':')
+ls32          = ( h16 ":" h16) / IPv4address
+h16           = hexdig ((hexdig? hexdig?) hexdig?)
+
+
+
 
 # ===================================================================================
 # Word Lists
@@ -92,6 +134,28 @@ env_var             = ("python_version"                 / "python_full_version" 
 # Character Groups
 # -----------------------------------------------------------------------------------
 
+fragment            = ( pchar / "/" / "?")*
+
+segment             = pchar*
+segment_nz          = pchar+
+segment_nz_nc       = ( unreserved / pct_encoded / sub_delims / "@")+
+
+pchar               = unreserved / pct_encoded / sub_delims / ":" / "@"
+reserved            = gen_delims / sub_delims
+pct_encoded         = "%" hexdig
+
+unreserved          = letter / digit / "-" / "." / "_" / "~"
+hexdig              = digit / "a" / "A" / "b" / "B" / "c" / "C" / "d" / "D" / "e" / "E" / "f" / "F"
+gen_delims          = ":" / "/" / "?" / "#" / "(" / ")?" / "@"
+sub_delims          = "!" / "$" / "&" / "\\" / "(" / ")" / "*" / "+" / "," / ";" / "="
+
+dec_octet     = ( digit                                           # 0-9
+                / (nz digit)                                      # 10-99
+                / ("1" digit digit)                               # 100-199
+                / ("2" ("0" / "1" / "2" / "3" / "4") digit)       # 200-249
+                / ("25" ("0" / "1" / "2" / "3" / "4" / "5") ))    # %250-255
+
+nz                  = ~'0' digit
 alphanum            = ~"[a-zA-Z0-9]"
 letter              = ~"[a-zA-Z]"
 digit               = ~"[0-9]"
