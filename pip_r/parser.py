@@ -8,6 +8,10 @@ from pip_r.grammar import spec, walk
 
 
 class Requirement:
+    name = ""
+    version = ""
+    versionspec = ""
+
     def __repr__(self):
         attrs = ", ".join([f"{k}={v!r}" for k, v in self.__dict__.items()])
         return f"Requirement({attrs})"
@@ -19,8 +23,11 @@ class RequirementsFile(list):
     pass
 
 class Parser(NodeVisitor):
-    result = RequirementsFile()
-    attrs = []
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.result = RequirementsFile()
+        self.attrs = []
 
     def visit_root(self, node, visited_children):
         return self.result
@@ -40,6 +47,11 @@ class Parser(NodeVisitor):
         self.attrs = []
 
         return requirement
+
+    def visit_versionspec(self, node, visited_children):
+        attr = Attr("versionspec", node.text)
+        self.attrs.append(attr)
+        return attr
 
     def visit_identifier(self, node, visited_children):
         attr = Attr("name", node.text)
