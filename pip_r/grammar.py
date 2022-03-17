@@ -19,7 +19,7 @@ def walk(node, i=0):
 
 from collections import defaultdict
 
-def groups(tree):
+def groups(tree, show_all=False):
     """Returns a dictionary grouping grammar tree by:
        expr_name -> list(text...)
     """
@@ -27,200 +27,99 @@ def groups(tree):
     groups = defaultdict(list)
 
     for node in walk(tree):
-        if not node.expr_name or not node.text:
+        if show_all or not (node.expr_name and node.text):
             continue
         groups[node.expr_name].append(node.text)
 
     return groups
 
-
-
-ebnf = r"""
-wsp           = ' ' | '\t'
-version_cmp   = wsp* <'<=' | '<' | '!=' | '==' | '>=' | '>' | '~=' | '==='>
-version       = wsp* <( letterOrDigit | '-' | '_' | '.' | '*' | '+' | '!' )+>
-version_one   = version_cmp:op version:v wsp* -> (op, v)
-version_many  = version_one:v1 (wsp* ',' version_one)*:v2 -> [v1] + v2
-versionspec   = ('(' version_many:v ')' ->v) | version_many
-urlspec       = '@' wsp* <URI_reference>
-marker_op     = version_cmp | (wsp* 'in') | (wsp* 'not' wsp+ 'in')
-python_str_c  = (wsp | letter | digit | '(' | ')' | '.' | '{' | '}' |
-                 '-' | '_' | '*' | '#' | ':' | ';' | ',' | '/' | '?' |
-                 '[' | ']' | '!' | '~' | '`' | '@' | '$' | '%' | '^' |
-                 '&' | '=' | '+' | '|' | '<' | '>' )
-dquote        = '"'
-squote        = '\\''
-python_str    = (squote <(python_str_c | dquote)*>:s squote |
-                 dquote <(python_str_c | squote)*>:s dquote) -> s
-env_var       = ('python_version' | 'python_full_version' |
-                 'os_name' | 'sys_platform' | 'platform_release' |
-                 'platform_system' | 'platform_version' |
-                 'platform_machine' | 'platform_python_implementation' |
-                 'implementation_name' | 'implementation_version' |
-                 'extra' # ONLY when defined by a containing layer
-                 ):varname -> lookup(varname)
-marker_var    = wsp* (env_var | python_str)
-marker_expr   = marker_var:l marker_op:o marker_var:r -> (o, l, r)
-              | wsp* '(' marker:m wsp* ')' -> m
-marker_and    = marker_expr:l wsp* 'and' marker_expr:r -> ('and', l, r)
-              | marker_expr:m -> m
-marker_or     = marker_and:l wsp* 'or' marker_and:r -> ('or', l, r)
-                  | marker_and:m -> m
-marker        = marker_or
-quoted_marker = ';' wsp* marker
-identifier_end = letterOrDigit | (('-' | '_' | '.' )* letterOrDigit)
-identifier    = < letterOrDigit identifier_end* >
-name          = identifier
-extras_list   = identifier:i (wsp* ',' wsp* identifier)*:ids -> [i] + ids
-extras        = '[' wsp* extras_list?:e wsp* ']' -> e
-name_req      = (name:n wsp* extras?:e wsp* versionspec?:v wsp* quoted_marker?:m
-                 -> (n, e or [], v or [], m))
-url_req       = (name:n wsp* extras?:e wsp* urlspec:v (wsp+ | end) quoted_marker?:m
-                 -> (n, e or [], v, m))
-specification = wsp* ( url_req | name_req ):s wsp* -> s
-# The result is a tuple - name, list-of-extras,
-# list-of-version-constraints-or-a-url, marker-ast or None
-
-
-URI_reference = <URI | relative_ref>
-URI           = scheme ':' hier_part ('?' query )? ( '#' fragment)?
-hier_part     = ('//' authority path_abempty) | path_absolute | path_rootless | path_empty
-absolute_URI  = scheme ':' hier_part ( '?' query )?
-relative_ref  = relative_part ( '?' query )? ( '#' fragment )?
-relative_part = '//' authority path_abempty | path_absolute | path_noscheme | path_empty
-scheme        = letter ( letter | digit | '+' | '-' | '.')*
-authority     = ( userinfo '@' )? host ( ':' port )?
-userinfo      = ( unreserved | pct_encoded | sub_delims | ':')*
-host          = IP_literal | IPv4address | reg_name
-port          = digit*
-IP_literal    = '[' ( IPv6address | IPvFuture) ']'
-IPvFuture     = 'v' hexdig+ '.' ( unreserved | sub_delims | ':')+
-IPv6address   = (
-                  ( h16 ':'){6} ls32
-                  | '::' ( h16 ':'){5} ls32
-                  | ( h16 )?  '::' ( h16 ':'){4} ls32
-                  | ( ( h16 ':')? h16 )? '::' ( h16 ':'){3} ls32
-                  | ( ( h16 ':'){0,2} h16 )? '::' ( h16 ':'){2} ls32
-                  | ( ( h16 ':'){0,3} h16 )? '::' h16 ':' ls32
-                  | ( ( h16 ':'){0,4} h16 )? '::' ls32
-                  | ( ( h16 ':'){0,5} h16 )? '::' h16
-                  | ( ( h16 ':'){0,6} h16 )? '::' )
-h16           = hexdig{1,4}
-ls32          = ( h16 ':' h16) | IPv4address
-IPv4address   = dec_octet '.' dec_octet '.' dec_octet '.' dec_octet
-nz            = ~'0' digit
-dec_octet     = (
-                  digit # 0-9
-                  | nz digit # 10-99
-                  | '1' digit{2} # 100-199
-                  | '2' ('0' | '1' | '2' | '3' | '4') digit # 200-249
-                  | '25' ('0' | '1' | '2' | '3' | '4' | '5') )# %250-255
-reg_name = ( unreserved | pct_encoded | sub_delims)*
-path = (
-        path_abempty # begins with '/' or is empty
-        | path_absolute # begins with '/' but not '//'
-        | path_noscheme # begins with a non-colon segment
-        | path_rootless # begins with a segment
-        | path_empty ) # zero characters
-path_abempty  = ( '/' segment)*
-path_absolute = '/' ( segment_nz ( '/' segment)* )?
-path_noscheme = segment_nz_nc ( '/' segment)*
-path_rootless = segment_nz ( '/' segment)*
-path_empty    = pchar{0}
-segment       = pchar*
-segment_nz    = pchar+
-segment_nz_nc = ( unreserved | pct_encoded | sub_delims | '@')+
-                # non-zero-length segment without any colon ':'
-pchar         = unreserved | pct_encoded | sub_delims | ':' | '@'
-query         = ( pchar | '/' | '?')*
-fragment      = ( pchar | '/' | '?')*
-pct_encoded   = '%' hexdig
-unreserved    = letter | digit | '-' | '.' | '_' | '~'
-reserved      = gen_delims | sub_delims
-gen_delims    = ':' | '/' | '?' | '#' | '(' | ')?' | '@'
-sub_delims    = '!' | '$' | '&' | '\\'' | '(' | ')' | '*' | '+' | ',' | ';' | '='
-hexdig        = digit | 'a' | 'A' | 'b' | 'B' | 'c' | 'C' | 'd' | 'D' | 'e' | 'E' | 'f' | 'F'
-"""
-
-
-spec = r"""
-wsp           = ~"\s*"
-version_cmp   = wsp* ( "<=" / "<" / "!=" / "==" / ">=" / ">" / "~=" / "===" )
-version       = wsp* ( letterOrDigit / "-" / "_" / "." / "*" / "+" / "!" )+
-version_one   = version_cmp version wsp*
-version_many  = version_one (wsp* ',' version_one)*
-versionspec   = version_many
-
-identifier_end = letterOrDigit / (("-" / "_" / "." )* letterOrDigit)
-identifier     = letterOrDigit identifier_end*
-name          = identifier
-
-name_req      = name wsp* versionspec? wsp*
-
-specification = wsp* name_req wsp*
-
-
-letterOrDigit = ~"[a-zA-Z0-9]"
-"""
-
 # TODO:
-# [ ] extras
+# [x] extras
 # [ ] url
 # [ ] path
 # [ ] options
+# [ ] global options
+# [x] line continuation
+# [ ] per-requirement options
+# [ ] -f git+git://github.com/mozilla/elasticutils.git
 
 spec = r"""
-root                                = white* line*
-line                                = wsp* ( specification / emptyline ) wsp* newline*
-specification                       = name wsp* extras? wsp* versionspec? wsp* marker? wsp* comment?
-name                                = &~"^[ \t]?"* identifier
+# ===================================================================================
+# Syntax
+# -----------------------------------------------------------------------------------
+root                = white* line*
 
-versionspec                         = version_expr (wsp* "," version_expr)*
-version_expr                        = version_operator wsp* version wsp*
-version                             = wsp* ( letterOrDigit / "-" / "_" / "." / "*" / "+" / "!" )+
+line                = wsp* ( specification / emptyline ) wsp* newline*
 
-marker                              = semicolon wsp* marker_expr marker_multi*
-marker_multi                        = wsp+ ("and" / "or") wsp+ marker_expr
-marker_expr                         = "("* wsp* env_var wsp* marker_operator wsp* python_string wsp* ")"*
+specification       = name wsp* extras? wsp* versionspec? wsp* marker? wsp* comment?
 
-env_var                             = ("python_version" / "python_full_version" /
-                                       "os_name" / "sys_platform" / "platform_release" /
-                                       "platform_system" / "platform_version" /
-                                       "platform_machine" / "platform_python_implementation" /
-                                       "implementation_name" / "implementation_version" /
-                                       "extra")
+versionspec         = version_expr (wsp* "," version_expr)*
+version_expr        = version_operator wsp* version
+version             = wsp* ( alphanum / "-" / "_" / "." / "*" / "+" / "!" )+
 
-extras                              = "[" wsp* identifier (wsp* "," wsp* identifier)* wsp* "]"
+marker              = semicolon wsp* marker_expr marker_multi*
+marker_multi        = wsp+ ("and" / "or") wsp+ marker_expr
+marker_expr         = "("* wsp* env_var wsp* marker_operator wsp* python_string wsp* ")"*
 
-marker_operator                     = version_operator / (wsp* "in") / (wsp* "not" wsp+ "in")
-version_operator                    = wsp* ( "<=" / "<" / "!=" / "==" / ">=" / ">" / "~=" / "===" )
+extras              = "[" wsp* identifier (wsp* "," wsp* identifier)* wsp* "]"
 
-identifier                          = letterOrDigit identifier_end*
-identifier_end                      = letterOrDigit / (("-" / "_" / "." )* letterOrDigit)
+# ===================================================================================
+# Tokens
+# -----------------------------------------------------------------------------------
 
-python_string                       = (quote_double quotable_double+ quote_double)
-                                    / (quote_single quotable_single+ quote_single)
+name                = &~"^[ \t]?"* identifier
+identifier          = alphanum (alphanum / "-" / "_" / "." )* alphanum*
+emptyline           = wsp* comment? white*
+comment             = "# " not_newline
+python_string       = (quote_double quotable_double+ quote_double)
+                    / (quote_single quotable_single+ quote_single)
 
-emptyline                           = wsp* comment? white*
-comment                             = "# " not_newline
-quotable_single                     = ( (backslash quote_single) / not_quote_single )
-quotable_double                     = ( (backslash quote_double) / not_quote_double )
+# ===================================================================================
+# Word Lists
+# -----------------------------------------------------------------------------------
 
-newline                             = ~"[\n\r]*"
-not_newline                         = ~"[^\n\r]*"
-white                               = ~"[ \t\n\r]*"
-wsp                                 = ~"[ \t]*"
-letterOrDigit                       = ~"[a-zA-Z0-9]"
+marker_operator     = version_operator / (wsp* "in") / (wsp* "not" wsp+ "in")
+version_operator    = wsp* ( "<=" / "<" / "!=" / "==" / ">=" / ">" / "~=" / "===" )
 
-not_quote                           = ~'[^\x27\x22]'
-not_quote_double                    = ~'[^\x22]'
-not_quote_single                    = ~'[^\x27]'
+env_var             = ("python_version"                 / "python_full_version" /
+                       "os_name"                        / "sys_platform"        /
+                       "platform_release"               / "platform_system"     /
+                       "platform_version"               / "platform_machine"    /
+                       "platform_python_implementation" / "implementation_name" /
+                       "implementation_version"         / "extra"               )
 
-quote                               = (quote_double / quote_single)
-backslash                           = "\x5c"
-quote_double                        = "\x22"
-quote_single                        = "\x27"
-semicolon                           = "\x3b"
+# ===================================================================================
+# Character Groups
+# -----------------------------------------------------------------------------------
+
+alphanum            = ~"[a-zA-Z0-9]"
+letter              = ~"[a-zA-Z]"
+digit               = ~"[0-9]"
+
+quotable_single     = ( (backslash quote_single) / not_quote_single )
+quotable_double     = ( (backslash quote_double) / not_quote_double )
+
+newline             = ~"[\n\r]*"
+not_newline         = ~"[^\n\r]*"
+white               = ~"[ \t\n\r]*"
+wsp                 = ~"[ \t]*"
+
+quote               = (quote_double / quote_single)
+
+not_quote           = ~'[^\x27\x22]'
+not_quote_double    = ~'[^\x22]'
+not_quote_single    = ~'[^\x27]'
+
+
+# ===================================================================================
+# Individual Character Aliases
+# -----------------------------------------------------------------------------------
+
+backslash           = "\x5c"
+quote_double        = "\x22"
+quote_single        = "\x27"
+semicolon           = "\x3b"
+
 """
 
 if __name__ == "__main__":

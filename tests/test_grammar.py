@@ -91,6 +91,14 @@ def test_markers(line, name, marker):
     assert doc["name"] == [name]
     assert doc["marker"] == [marker]
 
+@pytest.mark.skip(reason="not yet implemented")
+def test_url():
+    tree = grammar.parse("name@http://foo.com")
+    doc = groups(tree)
+
+    assert doc["name"] == ["name"]
+    assert doc["url"] == ["http://foo.com"]
+
 def test_comments():
     tree = grammar.parse(line)
     doc = groups(tree)
@@ -109,9 +117,42 @@ def test_comments(line, comment):
     assert doc["name"] == ["SomeProject"]
     assert doc["extras"] == ["[foo, bar]"]
 
+def test_line_continuation():
+    text = """
+requests [security,tests]     \
+    >= 2.8.1, == 2.8.*        \
+    ; python_version < "2.7"
+"""
+
+    tree = grammar.parse(text)
+    results = groups(tree)
+
+    assert len(results["specification"]) == 1
+    assert results["name"] == ["requests"]
+    assert results["versionspec"] == [">= 2.8.1, == 2.8.*"]
+    assert results["marker"] == ['; python_version < "2.7"']
 
 """
 "name@http://foo.com",
 "name [fred,bar] @ http://foo.com ; python_version=='2.7'",
 "name[quux, strange];python_version<'2.7' and platform_version=='2'",
+"SomePackage[PDF] @ git+https://git.repo/SomePackage@main#subdirectory=subdir_path"
+ -e "git+https://git.repo/some_repo.git#egg=subdir&subdirectory=subdir_path" # install a python package from a repo subdirectory
+
+ # same as:
+ # python setup.py --no-user-cfg install --prefix='/usr/local' --no-compile
+ FooProject >= 1.2 --global-option="--no-user-cfg" \
+                  --install-option="--prefix='/usr/local'" \
+                  --install-option="--no-compile"
+
+ SomeProject@git+https://git.repo/some_pkg.git@1.3.1
+
+SomeProject@http://my.package.repo/SomeProject-1.2.3-py33-none-any.whl
+SomeProject @ http://my.package.repo/SomeProject-1.2.3-py33-none-any.whl
+SomeProject@http://my.package.repo/1.2.3.tar.gz
+
+./downloads/numpy-1.9.2-cp34-none-win32.whl
+http://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev1820+49a8884-cp34-none-win_amd64.whl
+
 """
+
