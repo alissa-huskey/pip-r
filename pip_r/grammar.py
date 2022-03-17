@@ -1,7 +1,12 @@
 """
 Dependency Specification for Python Packages
 * https://peps.python.org/pep-0508/#environment-m
+
+Requirements File Format
+* https://pip.pypa.io/en/stable/reference/requirements-file-format/
 """
+
+from collections import defaultdict
 
 from parsimonious.grammar import Grammar
 
@@ -17,9 +22,7 @@ def walk(node, i=0):
         if child.children:
             yield from walk(child, i)
 
-from collections import defaultdict
-
-def groups(tree, show_all=False):
+def groups(tree, show_all=False, text_only=True):
     """Returns a dictionary grouping grammar tree by:
        expr_name -> list(text...)
     """
@@ -29,7 +32,8 @@ def groups(tree, show_all=False):
     for node in walk(tree):
         if show_all or not (node.expr_name and node.text):
             continue
-        groups[node.expr_name].append(node.text)
+        value = node.text if text_only else node
+        groups[node.expr_name].append(value)
 
     return groups
 
@@ -45,6 +49,7 @@ def groups(tree, show_all=False):
 # [ ] per-requirement options
 # [ ] -r other.txt
 # [ ] -c other.txt
+
 
 spec = r"""
 # ===================================================================================
@@ -63,7 +68,7 @@ version             = wsp* ( alphanum / "-" / "_" / "." / "*" / "+" / "!" )+
 
 marker              = semicolon wsp* marker_expr marker_multi*
 marker_multi        = wsp+ ("and" / "or") wsp+ marker_expr
-marker_expr         = "("* wsp* env_var wsp* marker_operator wsp* python_string wsp* ")"*
+marker_expr         = "("* wsp* marker_vars wsp* marker_operator wsp* python_string wsp* ")"*
 
 extras              = "[" wsp* identifier (wsp* "," wsp* identifier)* wsp* "]"
 
@@ -125,7 +130,7 @@ h16           = hexdig ((hexdig? hexdig?) hexdig?)
 marker_operator     = version_operator / (wsp* "in") / (wsp* "not" wsp+ "in")
 version_operator    = wsp* ( "<=" / "<" / "!=" / "==" / ">=" / ">" / "~=" / "===" )
 
-env_var             = ("python_version"                 / "python_full_version" /
+marker_vars         = ("python_version"                 / "python_full_version" /
                        "os_name"                        / "sys_platform"        /
                        "platform_release"               / "platform_system"     /
                        "platform_version"               / "platform_machine"    /

@@ -211,7 +211,6 @@ requests [security,tests]     \
                   --install-option="--no-compile"
 """
 
-#  @pytest.mark.skip()
 @pytest.mark.parametrize("uri", [
     "./downloads/numpy-1.9.2-cp34-none-win32.whl",
     "http://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev1820+49a8884-cp34-none-win_amd64.whl",
@@ -222,3 +221,5 @@ def test_bare_direct_reference(uri):
 
     #  breakpoint()
     assert doc["URI"] == [uri]
+
+
