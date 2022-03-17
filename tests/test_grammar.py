@@ -56,18 +56,16 @@ def test_plain_invalid_identifiers(line):
     with pytest.raises(Exception) as e:
         tree = grammar.parse(package)
 
-@pytest.mark.skip(reason="need to implement again")
 @pytest.mark.parametrize("line, name, operator, version", [
     ("docopt == 0.6.1", "docopt", "==", "0.6.1"),
-    #  ("keyring >= 4.1.1", "keyring", ">=", "4.1.1"),
-    #  ("coverage != 3.5", "coverage", "!=", "3.5"),
-    #  ("Mopidy-Dirble \t ~=  1.1", "Mopidy-Dirble", "~=", "1.1"),
+    ("keyring >= 4.1.1", "keyring", ">=", "4.1.1"),
+    ("coverage != 3.5", "coverage", "!=", "3.5"),
+    ("Mopidy-Dirble \t ~=  1.1", "Mopidy-Dirble", "~=", "1.1"),
 ])
 def test_versionspec(line, name, operator, version):
     tree = grammar.parse(line)
     results = groups(tree)
 
-    #  breakpoint()
     assert results["specification"] == [line]
     assert results["identifier"] == [name]
     assert results["version_operator"] == [operator]
