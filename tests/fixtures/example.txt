@@ -21,8 +21,8 @@
 # -f, --find-links
 # --no-binary
 # --only-binary
---prefer-binary
---require-hashes
+# --prefer-binary
+# --require-hashes
 # --pre
 # --trusted-host
 # --use-feature

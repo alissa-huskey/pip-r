@@ -35,26 +35,27 @@ def groups(tree, show_all=False):
 
 # TODO:
 # [x] extras
-# [ ] url
-# [ ] path
+# [x] url
+# [x] path
+# [x] line continuation
+# [x] bare file/url
+# [ ] environment variables
 # [ ] options
 # [ ] global options
-# [x] line continuation
 # [ ] per-requirement options
-# [ ] -f git+git://github.com/mozilla/elasticutils.git
-# [ ] environment variables
+# [ ] -r other.txt
+# [ ] -c other.txt
 
 spec = r"""
 # ===================================================================================
 # Syntax
 # -----------------------------------------------------------------------------------
+
 root                = white* line*
 
-line                = wsp* ( specification / emptyline ) wsp* newline*
+line                = wsp* ( specification / bare_uri_spec / emptyline ) wsp* newline*
 
-# name_req      = (name wsp* extras? wsp* versionspec? wsp* quoted_marker?
-# url_req       = (name wsp* extras? wsp* urlspec (wsp+ | end) quoted_marker?
-specification       = name wsp* extras? wsp* ((versionspec wsp*) / (urlspec (wsp+ / newline)))? marker? wsp* comment?
+specification       = name wsp* extras? wsp* ((versionspec wsp*) / (uri_spec (wsp+ / newline)))? marker? wsp* comment?
 
 versionspec         = version_expr (wsp* "," version_expr)*
 version_expr        = version_operator wsp* version
@@ -66,14 +67,15 @@ marker_expr         = "("* wsp* env_var wsp* marker_operator wsp* python_string 
 
 extras              = "[" wsp* identifier (wsp* "," wsp* identifier)* wsp* "]"
 
-urlspec             = "@" wsp* URI
+uri_spec             = "@" wsp* URI
+bare_uri_spec       = URI wsp* comment?
 
 # ===================================================================================
 # Tokens
 # -----------------------------------------------------------------------------------
 
 name                = &~"^[ \t]?"* identifier
-identifier          = alphanum (alphanum / "-" / "_" / "." )* alphanum*
+identifier          = (alphanum (alphanum / "-" / "_" / "." )* alphanum*) !(":")
 emptyline           = wsp* comment? white*
 comment             = "# " not_newline
 python_string       = (quote_double quotable_double+ quote_double)
@@ -83,10 +85,10 @@ URI                 = (scheme ":")? hier_part ("?" fragment )? ( "#" fragment)?
 scheme              = letter ( letter / digit / "+" / "-" / ".")*
 hier_part           = ('//' authority path_abempty) / path_absolute / path_rootless # / path_empty
 
-path_abempty        =  ( '/' segment)*                         # begins with '/' or is empty
-path_absolute       =  '/' ( segment_nz ( '/' segment)* )?     # begins with '/' but not '//'
-path_noscheme       =  segment_nz_nc ( '/' segment)*           # begins with a non-colon segment
-path_rootless       = segment_nz ( '/' segment)*               # begins with a segment
+path_abempty        = ( "/" segment)*                         # begins with "/" or is empty
+path_absolute       = "/" ( segment_nz ( "/" segment)* )?     # begins with "/" but not "//"
+path_noscheme       = segment_nz_nc ( "/" segment)*           # begins with a non-colon segment
+path_rootless       = segment_nz ( "/" segment)*               # begins with a segment
 path_empty          = ""                                       # zero characters
 
 authority           = ( userinfo "@" )? host ( ":" port )?

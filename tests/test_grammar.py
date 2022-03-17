@@ -150,6 +150,11 @@ def test_markers(line, name, marker):
         "simple-0.1-py2.py3-none-any.whl",
     ),
     (
+        "pipx @ ./downloads/numpy-1.9.2-cp34-none-win32.whl",
+        "pipx",
+        "./downloads/numpy-1.9.2-cp34-none-win32.whl",
+    ),
+    (
         "pipx @ .",
         "pipx",
         ".",
@@ -204,10 +209,16 @@ requests [security,tests]     \
  FooProject >= 1.2 --global-option="--no-user-cfg" \
                   --install-option="--prefix='/usr/local'" \
                   --install-option="--no-compile"
-
-
-./downloads/numpy-1.9.2-cp34-none-win32.whl
-http://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev1820+49a8884-cp34-none-win_amd64.whl
-
 """
 
+#  @pytest.mark.skip()
+@pytest.mark.parametrize("uri", [
+    "./downloads/numpy-1.9.2-cp34-none-win32.whl",
+    "http://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev1820+49a8884-cp34-none-win_amd64.whl",
+])
+def test_bare_direct_reference(uri):
+    tree = grammar.parse(uri)
+    doc = groups(tree)
+
+    #  breakpoint()
+    assert doc["URI"] == [uri]
