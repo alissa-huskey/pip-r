@@ -1,4 +1,4 @@
-from functools import namedtuple
+from functools import namedtuple, partialmethod
 from pprint import pprint
 
 from parsimonious.grammar import Grammar
@@ -51,20 +51,15 @@ class Parser(NodeVisitor):
 
         return requirement
 
-    def visit_versionspec(self, node, visited_children):
-        attr = Attr("versionspec", node.text)
+    def attr_visitor(self, name, node, visited_children):
+        attr = Attr(name, node.text)
         self.attrs.append(attr)
         return attr
 
-    def visit_identifier(self, node, visited_children):
-        attr = Attr("name", node.text)
-        self.attrs.append(attr)
-        return attr
-
-    def visit_marker(self, node, visited_children):
-        attr = Attr("marker", node.text)
-        self.attrs.append(attr)
-        return attr
+    visit_versionspec = partialmethod(attr_visitor, "versionspec")
+    visit_name = partialmethod(attr_visitor, "name")
+    visit_marker = partialmethod(attr_visitor, "marker")
+    visit_extras = partialmethod(attr_visitor, "extras")
 
     def generic_visit(self, node, visited_children):
         """ The generic visit method. """

@@ -163,15 +163,17 @@ specification = wsp* name_req wsp*
 letterOrDigit = ~"[a-zA-Z0-9]"
 """
 
-
+# TODO:
+# [ ] extras
+# [ ] url
+# [ ] path
+# [ ] options
 
 spec = r"""
 root                                = white* line*
 line                                = wsp* ( specification / emptyline ) wsp* newline*
-specification                       = name *wsp versionspec? wsp* marker? comment?
-name                                = identifier
-identifier                          = letterOrDigit identifier_end*
-identifier_end                      = letterOrDigit / (("-" / "_" / "." )* letterOrDigit)
+specification                       = name wsp* extras? wsp* versionspec? wsp* marker? wsp* comment?
+name                                = &~"^[ \t]?"* identifier
 
 versionspec                         = version_expr (wsp* "," version_expr)*
 version_expr                        = version_operator wsp* version wsp*
@@ -188,8 +190,13 @@ env_var                             = ("python_version" / "python_full_version" 
                                        "implementation_name" / "implementation_version" /
                                        "extra")
 
+extras                              = "[" wsp* identifier (wsp* "," wsp* identifier)* wsp* "]"
+
 marker_operator                     = version_operator / (wsp* "in") / (wsp* "not" wsp+ "in")
 version_operator                    = wsp* ( "<=" / "<" / "!=" / "==" / ">=" / ">" / "~=" / "===" )
+
+identifier                          = letterOrDigit identifier_end*
+identifier_end                      = letterOrDigit / (("-" / "_" / "." )* letterOrDigit)
 
 python_string                       = (quote_double quotable_double+ quote_double)
                                     / (quote_single quotable_single+ quote_single)

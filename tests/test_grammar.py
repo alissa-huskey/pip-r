@@ -24,20 +24,24 @@ def test_plain_identifiers(package):
     results = groups(tree)
 
     assert results["specification"] == [package]
-    assert results["identifier"] == [package]
+    assert results["name"] == [package]
 
 def test_multiline_plain_identifiers():
     text = """
 pytest
 pynvim
+ pytz
+    pyflakes
 """
     tree = grammar.parse(text + "\n")
     results = groups(tree)
 
-    assert len(results["specification"]) == 2
-    assert len(results["identifier"]) == 2
-    assert "pynvim" in results["identifier"]
-    assert "pytest" in results["identifier"]
+    assert len(results["specification"]) == 4
+    assert len(results["name"]) == 4
+    assert "pynvim" in results["name"]
+    assert "pytest" in results["name"]
+    assert "pytz" in results["name"]
+    assert "pyflakes" in results["name"]
 
 @pytest.mark.parametrize("line", [
     "_some_package",
@@ -66,7 +70,7 @@ def test_versionspec(line, name, operator, version):
     results = groups(tree)
 
     assert results["specification"] == [line]
-    assert results["identifier"] == [name]
+    assert results["name"] == [name]
     assert results["version_operator"] == [operator]
     assert results["version"] == [version]
 
@@ -84,8 +88,14 @@ def test_markers(line, name, marker):
     tree = grammar.parse(line)
     doc = groups(tree)
 
-    assert doc["identifier"] == [name]
+    assert doc["name"] == [name]
     assert doc["marker"] == [marker]
+
+def test_comments():
+    tree = grammar.parse(line)
+    doc = groups(tree)
+
+    assert doc["comment"] == [comment]
 
 @pytest.mark.parametrize("line, comment", [
     ("# a comment line", "# a comment line"),
@@ -93,10 +103,11 @@ def test_markers(line, name, marker):
     ("pytest # that's all folks!", "# that's all folks!")
 ])
 def test_comments(line, comment):
-    tree = grammar.parse(line)
+    tree = grammar.parse("SomeProject[foo, bar]")
     doc = groups(tree)
 
-    assert doc["comment"] == [comment]
+    assert doc["name"] == ["SomeProject"]
+    assert doc["extras"] == ["[foo, bar]"]
 
 
 """

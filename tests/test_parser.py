@@ -25,6 +25,13 @@ pytest
     assert doc[0].name == "pynvim"
     assert doc[1].name == "pytest"
 
+def test_extras():
+    tree = grammar.parse("SomeProject[foo, bar]")
+    parser = Parser()
+    doc = parser.visit(tree)
+
+    assert doc[0].extras == "[foo, bar]"
+
 @pytest.mark.parametrize("line, versionspec", [
     ("docopt == 0.6.1", "== 0.6.1"),
     ("keyring >= 4.1.1", ">= 4.1.1"),
