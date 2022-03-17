@@ -21,13 +21,12 @@ var_close           = "}"
 backslash           = "\57"
 """
 
-grammar = Grammar(spec)
-
 class Preprocessor(NodeVisitor):
 
-    def __init__(self, grammar, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.grammar = grammar
+    def __init__(self, content):
+        super().__init__()
+        self.grammar = Grammar(spec)
+        self.content = content
         self.result = {}
 
     def visit_root(self, node, visited_children):
@@ -42,3 +41,6 @@ class Preprocessor(NodeVisitor):
     def generic_visit(self, node, visited_children):
         """ The generic visit method. """
         return node or visited_children
+
+    def parse(self):
+        return super().parse(self.content)

@@ -1,6 +1,6 @@
 import pytest
 
-from pip_r.preprocess import grammar, Preprocessor
+from pip_r.preprocess import Preprocessor
 from pip_r.grammar import groups
 
 @pytest.mark.parametrize("text, count, names", [
@@ -26,9 +26,8 @@ def test_grammar(text, count, names):
     ("pip @ ${HOME}/downloads/numpy-$VERSION-cp34-none-win32.whl", 1, ["HOME"]),
 ])
 def test_parse(text, count, names):
-    tree = grammar.parse(text)
-    parser = Preprocessor(grammar)
-    doc = parser.visit(tree)
+    parser = Preprocessor(text)
+    doc = parser.parse()
 
     assert len(doc) == count
     for var in names:
