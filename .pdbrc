@@ -1,0 +1,1 @@
+alias pn print(isinstance(%1, Node) and f"{%1.expr}: {repr(%1.text)}" or %1)
