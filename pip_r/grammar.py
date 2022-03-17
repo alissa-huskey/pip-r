@@ -177,8 +177,9 @@ versionspec               = version_expr (wsp* "," version_expr)*
 version_expr              = version_operator wsp* version wsp*
 version                   = wsp* ( letterOrDigit / "-" / "_" / "." / "*" / "+" / "!" )+
 
-marker                    = semicolon wsp* marker_expr
-marker_expr               = wsp* env_var wsp* marker_operator *wsp python_string *wsp
+marker                    = semicolon wsp* marker_expr marker_multi*
+marker_multi              = wsp+ ("and" / "or") wsp+ marker_expr
+marker_expr               = "("* wsp* env_var wsp* marker_operator wsp* python_string wsp* ")"*
 
 env_var                   = ("python_version" / "python_full_version" /
                              "os_name" / "sys_platform" / "platform_release" /
@@ -190,8 +191,8 @@ env_var                   = ("python_version" / "python_full_version" /
 marker_operator           = version_operator / (wsp* "in") / (wsp* "not" wsp+ "in")
 version_operator          = wsp* ( "<=" / "<" / "!=" / "==" / ">=" / ">" / "~=" / "===" )
 
-python_string             = (quote_double quotable_double* quote_double)
-                          / (quote_single quotable_single* quote_single)
+python_string             = (quote_double quotable_double+ quote_double)
+                          / (quote_single quotable_single+ quote_single)
 
 quotable_single           = ( (backslash quote_single) / not_quote_single )
 quotable_double           = ( (backslash quote_double) / not_quote_double )

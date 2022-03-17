@@ -71,31 +71,25 @@ def test_versionspec(line, name, operator, version):
     assert results["version"] == [version]
 
 
-#  @pytest.mark.parametrize("line, name, operator, version", [
-#      ("docopt == 0.6.1", "docopt", "==", "0.6.1"),
-#      ("keyring >= 4.1.1", "keyring", ">=", "4.1.1"),
-#      ("coverage != 3.5", "coverage", "!=", "3.5"),
-#      ("Mopidy-Dirble \t ~=  1.1", "Mopidy-Dirble", "~=", "1.1"),
-#  ])
-def test_markers():
-    tree = grammar.parse('argparse;python_version<"2.7"')
+@pytest.mark.parametrize("line, name, marker", [
+    ('argparse;python_version<"2.7"', 'argparse', ';python_version<"2.7"'),
+    ("name; os_name=='a' and os_name=='b'", 'name', "; os_name=='a' and os_name=='b'"),
+    ("name; os_name=='a' or os_name=='b'", 'name', "; os_name=='a' or os_name=='b'"),
+    ("name; os_name=='a' and os_name=='b' or os_name=='c'", 'name', "; os_name=='a' and os_name=='b' or os_name=='c'"),
+    ("name; os_name=='a' or os_name=='b' and os_name=='c'", 'name', "; os_name=='a' or os_name=='b' and os_name=='c'"),
+    ("name; os_name=='a' and (os_name=='b' or os_name=='c')", "name", "; os_name=='a' and (os_name=='b' or os_name=='c')"),
+    ("name; (os_name=='a' or os_name=='b') and os_name=='c'", "name", "; (os_name=='a' or os_name=='b') and os_name=='c'"),
+])
+def test_markers(line, name, marker):
+    tree = grammar.parse(line)
     doc = groups(tree)
 
-    assert doc["identifier"] == ["argparse"]
-    assert doc["marker"] == [';python_version<"2.7"']
+    assert doc["identifier"] == [name]
+    assert doc["marker"] == [marker]
 
 
 """
 "name@http://foo.com",
 "name [fred,bar] @ http://foo.com ; python_version=='2.7'",
 "name[quux, strange];python_version<'2.7' and platform_version=='2'",
-"name; os_name=='a' or os_name=='b'",
-# Should parse as (a and b) or c
-"name; os_name=='a' and os_name=='b' or os_name=='c'",
-# Overriding precedence -> a and (b or c)
-"name; os_name=='a' and (os_name=='b' or os_name=='c')",
-# should parse as a or (b and c)
-"name; os_name=='a' or os_name=='b' and os_name=='c'",
-# Overriding precedence -> (a or b) and c
-"name; (os_name=='a' or os_name=='b') and os_name=='c'",
 """
