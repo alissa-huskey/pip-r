@@ -43,7 +43,7 @@ def groups(tree, show_all=False, text_only=True):
 # [x] path
 # [x] line continuation
 # [x] bare file/url
-# [ ] environment variables
+# [x] environment variables
 # [ ] options
 # [ ] global options
 # [ ] per-requirement options

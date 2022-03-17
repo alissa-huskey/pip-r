@@ -22,8 +22,9 @@ class RequirementsFile(list):
 
 class Parser(NodeVisitor):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, content):
+        self.grammar = Grammar(spec)
+        self.content = self.original = content
         self.result = RequirementsFile()
         self.attrs = []
 
@@ -65,18 +66,16 @@ class Parser(NodeVisitor):
         """ The generic visit method. """
         return node or visited_children
 
+    def parse(self):
+        """Parse the saved content and turn on self.parsed"""
+        return super().parse(self.content)
 
-def main():
-    tree = grammar.parse("""
-pynvim
-more-itertools
-""")
 
-    #  print(tree.prettily())
-
-    parser = Parser()
-    output = parser.visit(tree)
-    pprint(output)
+def parse_text(text):
+    """Convenience function to parse text."""
+    parser = Parser(text)
+    parser.parse()
+    return parser
 
 if __name__ == "__main__":
     main()

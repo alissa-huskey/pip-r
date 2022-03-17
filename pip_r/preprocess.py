@@ -1,5 +1,6 @@
 from os import environ
 from collections import defaultdict
+from pathlib import Path
 
 from parsimonious.nodes import NodeVisitor
 from parsimonious.grammar import Grammar
@@ -88,3 +89,12 @@ class Preprocessor(NodeVisitor):
         for var in self.vars.values():
             self.content = var.replace(self.content)
         return self.content
+
+def process_file(path):
+    """Convenience function to parse and process a file."""
+    path = Path(path)
+
+    parser = Preprocessor(path.read_text())
+    parser.parse()
+    parser.process()
+    return parser

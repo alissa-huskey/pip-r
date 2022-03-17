@@ -1,10 +1,13 @@
 import sys
+from os.path import isfile
 
 from pip_r.line import Line
 from pip_r.package import Package
 from pip_r.file import File
 from pip_r.renderer import Renderer
 from pip_r.exceptions import FileException
+from pip_r.preprocess import process_file
+from pip_r.parser import parse_text
 
 
 __all__ = ["error", "abort"]
@@ -31,20 +34,8 @@ def main():
     if not isfile(path):
         abort("No such file:" + path)
 
-    try:
-        file = File(path)
-    except FileException as e:
-        abort(e)
+    processor = process_file(path)
+    parser = parse_text(processor.content)
 
-    for i, string in enumerate(file.lines, 1):
-
-        line = Line(path, i, string)
-        line.parse()
-
-        if line.is_empty:
-            continue
-
-        with Renderer(line).show():
-            if line.is_valid and line.req:
-                line.package = Package(line)
-                line.status = line.package.install()
+    for req in parser.result:
+        print(req)
